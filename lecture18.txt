@@ -1,0 +1,85 @@
+More on Visualizations and Dashboards
+
+Step 1) Play with sub-buckets. Go to Visualize
+- Click on the Visualize link
+- click "+" to add a new visualization
+- click on "pie chart"
+- select "logstash-*" as the index
+- click Buckets -> Split Slices
+- on Aggregation, choose Terms
+- choose geoip.continent_code.keyword
+- leave the "Order By" field as Count
+- leave the "Order" field as Descending
+- leave the "Size" at 5, to just show the top 5 continents
+
+Now, let's play with the sub-buckets.
+- click on "add sub-buckets"
+- click on "Split Slices"
+- choose "Terms"
+- choose geoip.country_name.keyword
+- change "Size" to 3, to select the top 3 countries inside each continent
+- click Play
+
+The continents will be shown on the inner pie, and the countries on the outer pie.
+
+Save it with the name "Continent and country breakdown"
+
+Step 2) Add this new visualization to the Dashboard
+- Go to Dashboard
+- Click on "Edit"
+- Click on "Add"
+- Click on the "Continent and country breakdown"
+- Drag the visualizations if you'd like to change its position.
+- Click on Save
+- Add the title "Web Requests Dashboard"
+
+Step 3) Create a bar chart visualization
+- Go to Visualize
+- Click the "+" button
+- Click on "Vertical Bar"
+- Select "logstash-*" as the index
+- in Buckets, click on "X-Axis"
+- for the Aggregation, choose "Term"
+- for the Field, choose geoip.country_name.keyword
+- leave Order By as "metric: Count" meaning the number of web requests
+- change the size to 10
+- Click on the play button
+
+Step 4) Rename the graph labels to something more useful
+- Click on Y-axis
+- change the Custom Label to "Number of Requests"
+- In the X-axis section, look for the Custom Label field
+- change the Custom Label to "Countries"
+- click on the play button to see the results
+
+Step 5) Display the top cities inside each country in your bar chart visualization
+- In the X-Axis section, click on "Add sub-buckets"
+- Choose Split Series
+- In the Sub Aggregation field, select Terms again
+- Choose the field geoip.city_name.keyword
+- Hit Play, now each country bar is divided into its top cities
+- Save the chart with the name "Country and Cities"
+- Add the chart to the Dashboard
+
+Step 6) Something cooler: add a heat map of requests on Earth
+- Go to Visualize, add a Coordinate Map
+- In Buckets, click on Geo Coordinates
+- In Aggregation, choose Geohash (it may be the only option available)
+- In Field, choose geoip.location
+- Hit play
+- Change the precision to see how a greater precision shows more cities
+- Save with the name "Geolocation"
+- Add to the Dashboard
+
+Step 7) Let's create an Area visualization
+- Go to the Visualize tab, click Visualize link and add an "Area"
+- In Buckets, select the X-Axis type
+- In Aggregation, select the Date Histogram
+- Kibana should automatically pick @timestamp as the field
+- to start, choose the Monthly interval
+- change the interval to Weekly and Daily, find the peaks of traffic
+- change the axis names
+- save and add the chart to your dashboard
+
+
+

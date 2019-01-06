@@ -1,0 +1,371 @@
+Components of an index
+ - Mappings and Settings
+ 
+Step 1) Before creating an index, make sure it does not exist.
+
+Step 2) Create the "business" index, with type "building" and its first document 110
+PUT business/building/110
+{
+  "address": "57 New Dover Ln",
+  "floors": 10,
+  "offices": 21,
+  "loc": {
+    "lat": 40.707519,
+    "lon": -74.008560
+  }
+}
+
+#! Deprecation: the default number of shards will change from [5] to [1] in 7.0.0; if you wish to continue using the default of [5] shards, you must manage this on the create index request or with an index template
+{
+  "_index": "business",
+  "_type": "building",
+  "_id": "110",
+  "_version": 1,
+  "result": "created",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 0,
+  "_primary_term": 1
+}
+
+Step 3) GET the structure of the "business" index
+GET /business
+
+{
+  "business": {
+    "aliases": {},
+    "mappings": {
+      "building": {
+        "properties": {
+          "address": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "floors": {
+            "type": "long"
+          },
+          "loc": {
+            "properties": {
+              "lat": {
+                "type": "float"
+              },
+              "lon": {
+                "type": "float"
+              }
+            }
+          },
+          "offices": {
+            "type": "long"
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "creation_date": "1541528026880",
+        "number_of_shards": "5",
+        "number_of_replicas": "1",
+        "uuid": "UvmfXP_CQLunxQzOw7DetQ",
+        "version": {
+          "created": "6040299"
+        },
+        "provided_name": "business"
+      }
+    }
+  }
+}
+
+Step 5) index a new document with a new "price" field on it
+PUT business/building/217
+{
+  "address": "11 Pen Av",
+  "floors": 5,
+  "offices": 7,
+  "price": 450000,
+  "loc": {
+    "lat": 40.693519,
+    "lon": -73.988560
+  }
+}
+
+{
+  "_index": "business",
+  "_type": "building",
+  "_id": "217",
+  "_version": 1,
+  "result": "created",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 0,
+  "_primary_term": 1
+}
+
+Step 6) GET the structure of the business index. The mappings have been automatically updated to include the "price" field
+GET /business
+{
+  "business": {
+    "aliases": {},
+    "mappings": {
+      "building": {
+        "properties": {
+          "address": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "floors": {
+            "type": "long"
+          },
+          "loc": {
+            "properties": {
+              "lat": {
+                "type": "float"
+              },
+              "lon": {
+                "type": "float"
+              }
+            }
+          },
+          "offices": {
+            "type": "long"
+          },
+          "price": {
+            "type": "long"
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "creation_date": "1541528026880",
+        "number_of_shards": "5",
+        "number_of_replicas": "1",
+        "uuid": "UvmfXP_CQLunxQzOw7DetQ",
+        "version": {
+          "created": "6040299"
+        },
+        "provided_name": "business"
+      }
+    }
+  }
+}
+
+Step 7) If you try to add a new document with a different type, you will get an error.
+Solution: create a new index for your new document.
+PUT /employees/_doc/331
+{
+  "name": "Steve Honor",
+  "title": "Attorney",
+  "salary_usd": 1400000.00,
+  "hiredate": "Oct 10, 2010"
+}
+
+Step 8) Create a new document on "contracts" index
+PUT /contracts/_doc/9987
+{
+  "name": "property renovation",
+  "date_signed": "July 26, 2010",
+  "employees_involved": [331, 330, 398]
+}
+
+Step 9) Click on Kibana's Discover tab and it will list the 3 indexes you created.
+
+Step 10) use the "/_search" endpoint to list all documents in the index
+GET /business/_search
+{
+  "took": 14,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 2,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "business",
+        "_type": "building",
+        "_id": "110",
+        "_score": 1,
+        "_source": {
+          "address": "57 New Dover Ln",
+          "floors": 10,
+          "offices": 21,
+          "loc": {
+            "lat": 40.707519,
+            "lon": -74.00856
+          }
+        }
+      },
+      {
+        "_index": "business",
+        "_type": "building",
+        "_id": "217",
+        "_score": 1,
+        "_source": {
+          "address": "11 Pen Av",
+          "floors": 5,
+          "offices": 7,
+          "price": 450000,
+          "loc": {
+            "lat": 40.693519,
+            "lon": -73.98856
+          }
+        }
+      }
+    ]
+  }
+}
+
+Step 11) Search only the document with the word "pen" in the "address" field
+GET /business/_search/
+{
+  "query": {
+    "term": {
+      "address": "pen"
+    }
+  }
+}
+
+{
+  "took": 6,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 1,
+    "max_score": 0.2876821,
+    "hits": [
+      {
+        "_index": "business",
+        "_type": "building",
+        "_id": "217",
+        "_score": 0.2876821,
+        "_source": {
+          "address": "11 Pen Av",
+          "floors": 5,
+          "offices": 7,
+          "price": 450000,
+          "loc": {
+            "lat": 40.693519,
+            "lon": -73.98856
+          }
+        }
+      }
+    ]
+  }
+}
+
+Step 12) The following is the query for all documents inside an index:
+GET /business/_search/
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+If you click on the wrench and on "Copy as CURL":
+$ curl -XGET "http://95.216.137.70:9200/business/_search/" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match_all": {}
+  }
+}'
+{"took":1,"timed_out":false,"_shards":{"total":5,"successful":5,"skipped":0,"failed":0},"hits":{"total":2,"max_score":1.0,"hits":[{"_index":"business","_type":"building","_id":"110","_score":1.0,"_source":{
+  "address": "57 New Dover Ln",
+  "floors": 10,
+  "offices": 21,
+  "loc": {
+    "lat": 40.707519,
+    "lon": -74.008560
+  }
+}
+},{"_index":"business","_type":"building","_id":"217","_score":1.0,"_source":{
+  "address": "11 Pen Av",
+  "floors": 5,
+  "offices": 7,
+  "price": 450000,
+  "loc": {
+    "lat": 40.693519,
+    "lon": -73.988560
+  }
+}
+
+Step 13) Add the ?pretty query string to curl request:
+$ curl -XGET "http://95.216.137.70:9200/business/_search/?pretty" -H 'Content-Type: application/json' -d' -d'
+{
+  "query": {
+    "match_all": {}
+  }
+}'
+{
+  "took" : 4,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 2,
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "business",
+        "_type" : "building",
+        "_id" : "110",
+        "_score" : 1.0,
+        "_source" : {
+          "address" : "57 New Dover Ln",
+          "floors" : 10,
+          "offices" : 21,
+          "loc" : {
+            "lat" : 40.707519,
+            "lon" : -74.00856
+          }
+        }
+      },
+      {
+        "_index" : "business",
+        "_type" : "building",
+        "_id" : "217",
+        "_score" : 1.0,
+        "_source" : {
+          "address" : "11 Pen Av",
+          "floors" : 5,
+          "offices" : 7,
+          "price" : 450000,
+          "loc" : {
+            "lat" : 40.693519,
+            "lon" : -73.98856
+          }
+        }
+      }
+    ]
+  }
+}
+
+

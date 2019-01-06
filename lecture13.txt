@@ -1,0 +1,923 @@
+Aggregations (part 1)
+- it's about gaining insights about your data, through summarization 
+
+Step 1) get all the documents in this index.
+By default, Elasticsearch only returns the top 10 documents.
+
+GET /vehicles/cars/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+{
+  "took": 6,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 16,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "9VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 10000,
+          "color": "white",
+          "make": "honda",
+          "sold": "2016-10-28",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 18000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-11-05",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_1Eu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 20000,
+          "color": "red",
+          "make": "chevrolet",
+          "sold": "2016-08-15",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AFEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 13000,
+          "color": "gray",
+          "make": "chevrolet",
+          "sold": "2016-11-20",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 12000,
+          "color": "green",
+          "make": "toyota",
+          "sold": "2016-08-19",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 10000,
+          "color": "gray",
+          "make": "dodge",
+          "sold": "2016-02-12",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "BFEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 30000,
+          "color": "gray",
+          "make": "bmw",
+          "sold": "2016-11-20",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "9lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 20000,
+          "color": "white",
+          "make": "honda",
+          "sold": "2016-11-05",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_FEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 25000,
+          "color": "blue",
+          "make": "ford",
+          "sold": "2016-08-22",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-FEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 15000,
+          "color": "blue",
+          "make": "toyota",
+          "sold": "2016-07-02",
+          "condition": "good"
+        }
+      }
+    ]
+  }
+}
+
+Step 2) In order to see all the 16 documents, use the size parameter with a bigger number.
+
+GET /vehicles/cars/_search
+{
+  "size": 20,
+  "query": {
+    "match_all": {}
+  }
+}
+
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 16,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "9VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 10000,
+          "color": "white",
+          "make": "honda",
+          "sold": "2016-10-28",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 18000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-11-05",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_1Eu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 20000,
+          "color": "red",
+          "make": "chevrolet",
+          "sold": "2016-08-15",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AFEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 13000,
+          "color": "gray",
+          "make": "chevrolet",
+          "sold": "2016-11-20",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 12000,
+          "color": "green",
+          "make": "toyota",
+          "sold": "2016-08-19",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 10000,
+          "color": "gray",
+          "make": "dodge",
+          "sold": "2016-02-12",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "BFEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 30000,
+          "color": "gray",
+          "make": "bmw",
+          "sold": "2016-11-20",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "9lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 20000,
+          "color": "white",
+          "make": "honda",
+          "sold": "2016-11-05",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_FEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 25000,
+          "color": "blue",
+          "make": "ford",
+          "sold": "2016-08-22",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-FEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 15000,
+          "color": "blue",
+          "make": "toyota",
+          "sold": "2016-07-02",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-1Eu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 80000,
+          "color": "red",
+          "make": "bmw",
+          "sold": "2016-01-01",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AVEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 12500,
+          "color": "gray",
+          "make": "dodge",
+          "sold": "2016-03-09",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AlEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 35000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-04-10",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "A1Eu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 28000,
+          "color": "blue",
+          "make": "chevrolet",
+          "sold": "2016-08-15",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "91Eu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 30000,
+          "color": "green",
+          "make": "ford",
+          "sold": "2016-05-18",
+          "condition": "new"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 19000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-02-12",
+          "condition": "good"
+        }
+      }
+    ]
+  }
+}
+
+Step 3) for pagination, use the parameter "from" combined with "size".
+In this example, only the first 5 documents will be shown.
+
+GET /vehicles/cars/_search
+{
+  "from": 0,
+  "size": 5,
+  "query": {
+    "match_all": {}
+  }
+}
+
+{
+  "took": 1,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 16,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "9VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 10000,
+          "color": "white",
+          "make": "honda",
+          "sold": "2016-10-28",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-lEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 18000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-11-05",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "_1Eu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 20000,
+          "color": "red",
+          "make": "chevrolet",
+          "sold": "2016-08-15",
+          "condition": "good"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AFEu-mYBC46YeeqoC_XT",
+        "_score": 1,
+        "_source": {
+          "price": 13000,
+          "color": "gray",
+          "make": "chevrolet",
+          "sold": "2016-11-20",
+          "condition": "okay"
+        }
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-VEu-mYBC46YeeqoC_TT",
+        "_score": 1,
+        "_source": {
+          "price": 12000,
+          "color": "green",
+          "make": "toyota",
+          "sold": "2016-08-19",
+          "condition": "good"
+        }
+      }
+    ]
+  }
+}
+
+Step 4) Elasticsearch also provides a "sort" option.
+In this example, the first 3 results, sorted by descending price, are shown.
+The query takes place first and then the sorting happens.
+
+GET /vehicles/cars/_search
+{
+  "from": 0,
+  "size": 3,
+  "query": {
+    "match_all": {}
+  },
+  "sort": [
+    {
+      "price": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": 16,
+    "max_score": null,
+    "hits": [
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "-1Eu-mYBC46YeeqoC_TT",
+        "_score": null,
+        "_source": {
+          "price": 80000,
+          "color": "red",
+          "make": "bmw",
+          "sold": "2016-01-01",
+          "condition": "new"
+        },
+        "sort": [
+          80000
+        ]
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "AlEu-mYBC46YeeqoC_XT",
+        "_score": null,
+        "_source": {
+          "price": 35000,
+          "color": "red",
+          "make": "dodge",
+          "sold": "2016-04-10",
+          "condition": "new"
+        },
+        "sort": [
+          35000
+        ]
+      },
+      {
+        "_index": "vehicles",
+        "_type": "cars",
+        "_id": "BFEu-mYBC46YeeqoC_XT",
+        "_score": null,
+        "_source": {
+          "price": 30000,
+          "color": "gray",
+          "make": "bmw",
+          "sold": "2016-11-20",
+          "condition": "good"
+        },
+        "sort": [
+          30000
+        ]
+      }
+    ]
+  }
+}
+
+Step 5) Count all cars made by Dodge.
+GET /vehicles/cars/_count
+{
+  "query": {
+    "match": {
+      "make": "dodge"
+    }
+  }
+}
+
+{
+  "count": 5,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "skipped": 0,
+    "failed": 0
+  }
+}
+
+GET /vehicles/cars/_count
+{
+  "query": {
+    "match": {
+      "make": "toyota"
+    }
+  }
+}
+
+....
+  "count": 2,
+....
+
+Step 6) Aggregate on the car brand (make).
+GET /vehicles/cars/_search
+{
+  "aggs": {
+    "popular_cars": {
+      "terms": {
+        "field": "make.keyword"
+      }
+    }
+  }
+}
+
+....
+  "aggregations": {
+    "popular_cars": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "dodge",
+          "doc_count": 5
+        },
+        {
+          "key": "chevrolet",
+          "doc_count": 3
+        },
+        {
+          "key": "bmw",
+          "doc_count": 2
+        },
+        {
+          "key": "ford",
+          "doc_count": 2
+        },
+        {
+          "key": "honda",
+          "doc_count": 2
+        },
+        {
+          "key": "toyota",
+          "doc_count": 2
+        }
+      ]
+    }
+  }
+}
+
+Step 7) Besides the count per brand, let me know each brand's average price.
+GET /vehicles/cars/_search
+{
+  "aggs": {
+    "popular_cars": {
+      "terms": {
+        "field": "make.keyword"
+      },
+      "aggs": {
+        "avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+....
+  "aggregations": {
+    "popular_cars": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "dodge",
+          "doc_count": 5,
+          "avg_price": {
+            "value": 18900
+          }
+        },
+        {
+          "key": "chevrolet",
+          "doc_count": 3,
+          "avg_price": {
+            "value": 20333.333333333332
+          }
+        },
+        {
+          "key": "bmw",
+          "doc_count": 2,
+          "avg_price": {
+            "value": 55000
+          }
+        },
+        {
+          "key": "ford",
+          "doc_count": 2,
+          "avg_price": {
+            "value": 27500
+          }
+        },
+        {
+          "key": "honda",
+          "doc_count": 2,
+          "avg_price": {
+            "value": 15000
+          }
+        },
+        {
+          "key": "toyota",
+          "doc_count": 2,
+          "avg_price": {
+            "value": 13500
+          }
+        }
+      ]
+    }
+  }
+}
+
+Step 8) Additionally, let me know the highest price per brand.
+GET /vehicles/cars/_search
+{
+  "aggs": {
+    "popular_cars": {
+      "terms": {
+        "field": "make.keyword"
+      },
+      "aggs": {
+        "avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        },
+        "max_price": {
+          "max": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+....
+  "aggregations": {
+    "popular_cars": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "dodge",
+          "doc_count": 5,
+          "max_price": {
+            "value": 35000
+          },
+          "avg_price": {
+            "value": 18900
+          }
+        },
+        {
+          "key": "chevrolet",
+          "doc_count": 3,
+          "max_price": {
+            "value": 28000
+          },
+          "avg_price": {
+            "value": 20333.333333333332
+          }
+        },
+        {
+          "key": "bmw",
+          "doc_count": 2,
+          "max_price": {
+            "value": 80000
+          },
+          "avg_price": {
+            "value": 55000
+          }
+        },
+        {
+          "key": "ford",
+          "doc_count": 2,
+          "max_price": {
+            "value": 30000
+          },
+          "avg_price": {
+            "value": 27500
+          }
+        },
+        {
+          "key": "honda",
+          "doc_count": 2,
+          "max_price": {
+            "value": 20000
+          },
+          "avg_price": {
+            "value": 15000
+          }
+        },
+        {
+          "key": "toyota",
+          "doc_count": 2,
+          "max_price": {
+            "value": 15000
+          },
+          "avg_price": {
+            "value": 13500
+          }
+        }
+      ]
+    }
+  }
+}
+
+Step 9) OK, give the same metrics as before, but only for red cars.
+GET /vehicles/cars/_search
+{
+  "query": {
+    "match": {
+      "color": "red"
+    }
+  }, 
+  "aggs": {
+    "popular_cars": {
+      "terms": {
+        "field": "make.keyword"
+      },
+      "aggs": {
+        "avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        },
+        "max_price": {
+          "max": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+
+....
+  "aggregations": {
+    "popular_cars": {
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0,
+      "buckets": [
+        {
+          "key": "dodge",
+          "doc_count": 3,
+          "max_price": {
+            "value": 35000
+          },
+          "avg_price": {
+            "value": 24000
+          }
+        },
+        {
+          "key": "bmw",
+          "doc_count": 1,
+          "max_price": {
+            "value": 80000
+          },
+          "avg_price": {
+            "value": 80000
+          }
+        },
+        {
+          "key": "chevrolet",
+          "doc_count": 1,
+          "max_price": {
+            "value": 20000
+          },
+          "avg_price": {
+            "value": 20000
+          }
+        }
+      ]
+    }
+  }
+}
+
+Step 10) Turn off the individual hits: just show the aggregations, not the documents matching the query.
+Add "size": 0 to the query.
+
+GET /vehicles/cars/_search
+{
+  "size": 0, 
+  "query": {
+    "match": {
+      "color": "red"
+    }
+  }, 
+  "aggs": {
+    "popular_cars": {
+      "terms": {
+        "field": "make.keyword"
+      },
+      "aggs": {
+        "avg_price": {
+          "avg": {
+            "field": "price"
+          }
+        },
+        "max_price": {
+          "max": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}
+

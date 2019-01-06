@@ -1,0 +1,341 @@
+Indexing, Retrieving and Deleting Documents.
+
+Step 1) Open Kibana
+
+Step 2) go to Dev tools
+
+Step 3) in order to index a document like this:
+{
+  "make": "Honda",
+  "Color": "Black",
+  "HP": 250,
+  "mileage": 24000,
+  "price": 19300.97
+}
+
+follow the syntax 
+PUT /{index}/{type}/{id}
+attention: {type} is deprecated since Elasticsearch version 6.
+  
+PUT /vehicles/car/123
+{
+  "make": "Honda",
+  "Color": "Black",
+  "HP": 250,
+  "mileage": 24000,
+  "price": 19300.97
+}
+
+
+Step 4) Click play
+This is the response:
+#! Deprecation: the default number of shards will change from [5] to [1] in 7.0.0; if you wish to continue using the default of [5] shards, you must manage this on the create index request or with an index template
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 1,
+  "result": "created",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 0,
+  "_primary_term": 1
+}
+
+Step 5) Click play multiple times and notice how the "_version" field increments and the "result" changes to "updated"
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 4,
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 3,
+  "_primary_term": 1
+}
+
+Step 6) change the PUT command by GET:
+GET /vehicles/car/123
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 4,
+  "found": true,
+  "_source": {
+    "make": "Honda",
+    "Color": "Black",
+    "HP": 250,
+    "mileage": 24000,
+    "price": 19300.97
+  }
+}
+
+Step 7) try to reference a document id that does not exist
+GET /vehicles/car/123
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "124",
+  "found": false
+}
+
+Step 8) try to reference a document id that exists but with an inexistent type:
+GET /vehicles/bike/124
+{
+  "_index": "vehicles",
+  "_type": "bike",
+  "_id": "124",
+  "found": false
+}
+
+Step 9) If you only want to get a document, without the metadata, use /_source:
+GET /vehicles/car/123/_source
+{
+  "make": "Honda",
+  "Color": "Black",
+  "HP": 250,
+  "mileage": 24000,
+  "price": 19300.97
+}
+
+Step 10) If you only want to check whether a document exists use the HEAD command:
+HEAD /vehicles/car/123
+200 - OK
+or:
+HEAD /vehicles/car/124
+404 - Not Found
+
+
+Step 11) To change any field, resubmit the entire document:
+PUT /vehicles/car/123
+{
+  "make": "Honda",
+  "Color": "blue",
+  "HP": 250,
+  "mileage": 19000,
+  "price": 19300.97
+}
+
+Response:
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 5,
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 4,
+  "_primary_term": 1
+}
+
+Step 12) In order to modify a specific field, use the following syntax:
+POST /vehicles/car/123/_update
+{
+  "doc": {
+    "price": 1000
+  }
+}
+
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 6,
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 5,
+  "_primary_term": 1
+}
+
+Step 13) In order to add a new field to the document, simply update it with the new field.
+POST /vehicles/car/123/_update
+{
+  "doc": {
+    "driver": "Tom"
+  }
+}
+
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 11,
+  "result": "updated",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 10,
+  "_primary_term": 1
+}
+
+GET /vehicles/car/123/_source
+{
+  "make": "Honda",
+  "Color": "blue",
+  "HP": 250,
+  "mileage": 19000,
+  "price": 1000,
+  "driver": "Tom"
+}
+
+Step 14) In order to delete a document, use the DELETE method.
+DELETE /vehicles/car/123/
+
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "_version": 12,
+  "result": "deleted",
+  "_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "_seq_no": 11,
+  "_primary_term": 1
+}
+
+GET /vehicles/car/123/
+
+{
+  "_index": "vehicles",
+  "_type": "car",
+  "_id": "123",
+  "found": false
+}
+
+The document is now marked as deleted and will be completely removed later when Elasticsearch runs its garbage collection routine.
+
+Step 15) If you GET the index, Elasticsearch responds with its structure.
+Elasticsearch was smart enough to figure out the types of each field (float, string, etc).
+GET /vehicles
+
+{
+  "vehicles": {
+    "aliases": {},
+    "mappings": {
+      "car": {
+        "properties": {
+          "Color": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "HP": {
+            "type": "long"
+          },
+          "doc": {
+            "properties": {
+              "driver": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              },
+              "price": {
+                "type": "float"
+              }
+            }
+          },
+          "driver": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "make": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "mileage": {
+            "type": "long"
+          },
+          "price": {
+            "type": "float"
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "creation_date": "1541513368766",
+        "number_of_shards": "5",
+        "number_of_replicas": "1",
+        "uuid": "xqyaTTDvTtCw4VUu9ktq0A",
+        "version": {
+          "created": "6040299"
+        },
+        "provided_name": "vehicles"
+      }
+    }
+  }
+}
+
+
+
+Step 16) In order to delete the entire index, use the DELETE method with the /{index} endpoint.
+DELETE /vehicles
+
+{
+  "acknowledged": true
+}
+
+GET /vehicles
+
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "index_not_found_exception",
+        "reason": "no such index",
+        "resource.type": "index_or_alias",
+        "resource.id": "vehicles",
+        "index_uuid": "_na_",
+        "index": "vehicles"
+      }
+    ],
+    "type": "index_not_found_exception",
+    "reason": "no such index",
+    "resource.type": "index_or_alias",
+    "resource.id": "vehicles",
+    "index_uuid": "_na_",
+    "index": "vehicles"
+  },
+  "status": 404
+}
+
+
